@@ -1,4 +1,41 @@
+require("dotenv/config");
 const {User} = require("../models/User");
+const jwt = require("jsonwebtoken");
+
+exports.authenticate = async (request, response) => {
+    try {
+        const credentials = {
+            email: request.body.email,
+            password: request.body.password
+        };
+
+        const user = await User.findOne({"email": credentials.email});
+
+        if(!user) {
+            response.status(404).json({message: "E-mail incorreto !"});
+            return;
+        }
+
+        user.comparePassword(credentials.password, (error, isMatch) => {
+            if(error) {
+                console.log(error);
+            }
+
+            if(isMatch) {
+                const id = this._id;
+                const token = jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: 300});
+
+                response.json({token: token});
+            }
+            else {
+                response.status(404).json({message: "Senha incorreta !"});
+            }
+        });
+    }
+    catch(error) {
+        console.log(error);
+    }
+}
 
 exports.create = async (request, response) => {
     try {

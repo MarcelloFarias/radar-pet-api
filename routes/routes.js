@@ -6,6 +6,7 @@ const petController = require("../controllers/petController");
 
 //user routes
 app.post("/users", userController.create);
+app.post("/users/auth", userController.authenticate);
 app.get("/users", userController.getAll);
 app.get("/users/:id", userController.getById);
 app.delete("/users/:id", userController.delete);
