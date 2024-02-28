@@ -1,18 +1,17 @@
 require("dotenv/config");
 const jwt = require("jsonwebtoken");
 
-const verifyJwt = (request, response, next) => {
+const verifyToken = (request, response, next) => {
     const token = request.headers["x-access-token"];
 
     if(token) {
         jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
             if(error) {
-                console.log(error, " Error to verify JWT token...");
-
+                console.log(error);
                 response.status(404).json({message: "Fail to verify token !"});
             }
 
-            request.userId = decoded.id;
+            request.userId = decoded.userId;
             next();
         });
     }
@@ -21,4 +20,4 @@ const verifyJwt = (request, response, next) => {
     }
 }
 
-module.exports = verifyJwt;
+module.exports = verifyToken;

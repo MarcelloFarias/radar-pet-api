@@ -4,26 +4,25 @@ const jwt = require("jsonwebtoken");
 
 exports.authenticate = async (request, response) => {
     try {
-        const credentials = {
-            email: request.body.email,
-            password: request.body.password
-        };
+        const email = request.body.email;
+        const password = request.body.password;
 
-        const user = await User.findOne({"email": credentials.email});
+        const user = await User.findOne({email: email});
 
         if(!user) {
             response.status(404).json({message: "E-mail incorreto !"});
             return;
         }
 
-        user.comparePassword(credentials.password, (error, isMatch) => {
+        const userId = user.id;
+
+        user.comparePassword(password, (error, passwordsMatch) => {
             if(error) {
                 console.log(error);
             }
 
-            if(isMatch) {
-                const id = this._id;
-                const token = jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: 300});
+            if(passwordsMatch) {
+                const token = jwt.sign({userId}, process.env.JWT_SECRET, {expiresIn: "24h"});
 
                 response.json({token: token});
             }
@@ -31,6 +30,24 @@ exports.authenticate = async (request, response) => {
                 response.status(404).json({message: "Senha incorreta !"});
             }
         });
+    }
+    catch(error) {
+        console.log(error);
+    }
+}
+
+exports.authorize = async (request, response) => {
+    try {
+        const id = request.userId;
+
+        const user = await User.findById(id);
+
+        if(!user) {
+            response.status(404).json({message: "Usuário não encontrado !"});
+            return; 
+        }
+
+        response.json(user);
     }
     catch(error) {
         console.log(error);
@@ -45,6 +62,13 @@ exports.create = async (request, response) => {
             password: request.body.password,
             phone: request.body.phone,
         };
+
+        const userExists = await User.findOne({email: user.email});
+
+        if(userExists) {
+            response.status(404).json({message: "E-mail já registrado !"});
+            return;
+        }
 
         const res = await User.create(user);
 
@@ -69,12 +93,14 @@ exports.getAll = async (_, response) => {
 exports.getById = async (request, response) => {
     try {
         const id = request.params.id;
-        const user = User.findById(id);
+
+        const user = await User.findById(id);
 
         if(!user) {
             response.status(404).json({message: "Usuário não encontrado !"});
             return;
         }
+
         response.json(user);
     } 
     catch(error) {
