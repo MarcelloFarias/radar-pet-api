@@ -50,6 +50,25 @@ exports.getById = async (request, response) => {
     }
 }
 
+exports.getPaged = async (request, response) => {
+    try {
+        const page = parseInt(request.query.page) || 1;
+        const limit = parseInt(request.query.limit) || 10;
+
+        const petsPaged = await Pet.find().skip(page * limit);
+
+        if(!petsPaged) {
+            response.status(404).json({message: "Pets não registrados !"});
+            return;
+        }
+
+        response.json(petsPaged);
+    }
+    catch(error) {
+        console.log(error);
+    }
+}
+
 exports.delete = async (request, response) => {
     try {
         const id = request.params.id;
