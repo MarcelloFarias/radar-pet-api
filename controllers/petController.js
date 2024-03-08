@@ -62,7 +62,13 @@ exports.getPaged = async (request, response) => {
             return;
         }
 
-        response.json(petsPaged);
+        if(petsPaged.length < 20) {
+            const pets = await Pet.find();
+            response.json({pets: pets, total: pets.length});
+            return;
+        }
+
+        response.json({pets: petsPaged, total: petsPaged.length});
     }
     catch(error) {
         console.log(error);
