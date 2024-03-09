@@ -55,20 +55,15 @@ exports.getPaged = async (request, response) => {
         const page = parseInt(request.query.page) || 1;
         const limit = parseInt(request.query.limit) || 10;
 
-        const petsPaged = await Pet.find().skip(page * limit);
+        const petsPaged = await Pet.find().limit(limit).skip(page * limit - limit);
+        const countDocuments = await Pet.estimatedDocumentCount();
 
         if(!petsPaged) {
             response.status(404).json({message: "Pets não registrados !"});
             return;
         }
 
-        if(petsPaged.length < 20) {
-            const pets = await Pet.find();
-            response.json({pets: pets, total: pets.length});
-            return;
-        }
-
-        response.json({pets: petsPaged, total: petsPaged.length});
+        response.json({pets: petsPaged, currentPage: page, totalPages: Math.ceil(countDocuments / limit)});
     }
     catch(error) {
         console.log(error);
