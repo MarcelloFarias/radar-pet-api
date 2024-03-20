@@ -72,6 +72,23 @@ exports.getPaged = async (request, response) => {
   }
 };
 
+exports.getByName = async (request, response) => {
+  try {
+    const petName = request.params.name;
+
+    const petsFound = await Pet.find({ name: petName });
+
+    if (!petsFound) {
+      response.status(404).json({ message: "Pets não encontrados !" });
+      return;
+    }
+
+    response.status(200).json({ pets: petsFound });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 exports.delete = async (request, response) => {
   try {
     const id = request.params.id;
