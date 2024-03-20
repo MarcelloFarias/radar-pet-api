@@ -78,7 +78,7 @@ exports.getByName = async (request, response) => {
 
     const petsFound = await Pet.find({ name: petName });
 
-    if (!petsFound) {
+    if (petsFound.length < 1) {
       response.status(404).json({ message: "Pets não encontrados !" });
       return;
     }

@@ -16,8 +16,9 @@ app.put("users/:id", userController.update);
 
 //pet routes
 app.post("/pets", petController.create);
-app.get("/pets", petController.getAll); 
+app.get("/pets", petController.getAll);
 app.get("/", petController.getPaged);
+app.get("/pets/search/:name", petController.getByName);
 app.get("/pets/:id", petController.getById);
 app.delete("/pets/:id", petController.delete);
 app.put("/pets/:id", petController.update);
