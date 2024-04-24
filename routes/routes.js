@@ -12,7 +12,7 @@ app.post("/users", userController.create);
 app.get("/users", userController.getAll);
 app.get("/users/:id", userController.getById);
 app.delete("/users/:id", userController.delete);
-app.put("users/:id", userController.update);
+app.put("/users/:id", userController.update);
 
 //pet routes
 app.post("/pets", petController.create);
