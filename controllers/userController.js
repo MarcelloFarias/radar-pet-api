@@ -127,23 +127,69 @@ exports.delete = async (request, response) => {
 };
 
 exports.update = async (request, response) => {
-  const id = request.params.id;
+  try {
+    const id = request.params.id;
 
-  const user = {
-    name: request.body.name,
-    email: request.body.email,
-    password: request.body.password,
-    phone: request.body.phone,
-  };
+    const data = {
+      name: request.body.name,
+      email: request.body.email,
+      password: request.body.password,
+      phone: request.body.phone,
+    };
 
-  const updatedUser = await User.findByIdAndUpdate(id, user);
+    const updatedUser = await User.findByIdAndUpdate(id, data);
 
-  if (!updatedUser) {
-    response.status(404).json({ message: "Usuário não encontrado !" });
-    return;
+    if (!updatedUser) {
+      response.status(404).json({ message: "Usuário não encontrado !" });
+      return;
+    }
+
+    response
+      .status(200)
+      .json({ updatedUser, message: "Informações atualizadas com sucesso !" });
+  } catch (error) {
+    console.log(error);
   }
+};
 
-  response
-    .status(200)
-    .json({ updatedUser, message: "Usuário atualizado com sucesso !" });
+exports.updatePassword = async (request, response) => {
+  try {
+    const id = request.params.id;
+    const newPassword = request.body.newPassword;
+    const currentPassword = request.body.currentPassword;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      response.status(404).json({ message: "Usuário não encontrado !" });
+      return;
+    }
+
+    user.comparePassword(currentPassword, async (error, passwordsMatch) => {
+      if (error) {
+        console.log(error);
+      }
+
+      if (passwordsMatch) {
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: id },
+          { password: newPassword }
+        );
+
+        if (!updatedUser) {
+          response.status(404).json({ message: "Falha ao alterar a senha !" });
+          return;
+        }
+
+        response
+          .status(200)
+          .json({ updatedUser, message: "Senha alterada com sucesso !" });
+      } else {
+        response.status(404).json({ message: "Senha atual incorreta !" });
+        return;
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };

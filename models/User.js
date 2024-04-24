@@ -1,50 +1,55 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
-const {Schema} = mongoose;
+const { Schema } = mongoose;
 
-const userSchema = new Schema({
-        name: {type: String, required: true},
-        email: {type: String, required: true},
-        password: {type: String, required: true},
-        phone: {type: String, required: true},
-    },
-    {timestamps: true}
+const userSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    password: { type: String, required: true },
+    phone: { type: String, required: true },
+  },
+  { timestamps: true }
 );
 
-userSchema.pre("save", function(next) {
-    const user = this;
-    const salts = 10;
+userSchema.pre("save", function (next) {
+  const user = this;
+  const salts = 10;
 
-    if(!user.isModified("password")) {
-        return next();
+  if (!user.isModified("password")) {
+    return next();
+  }
+
+  bcrypt.genSalt(salts, (error, salt) => {
+    if (error) {
+      return next(error);
     }
 
-    bcrypt.genSalt(salts, (error, salt) => {
-        if(error) {
-            return next(error);
-        }
+    bcrypt.hash(user.password, salt, (error, hash) => {
+      if (error) {
+        return next(error);
+      }
 
-        bcrypt.hash(user.password, salt, (error, hash) => {
-            if(error) {
-                return next(error);
-            }
-
-            user.password = hash;
-            next();
-        });
+      user.password = hash;
+      next();
     });
+  });
 });
 
-userSchema.methods.comparePassword = function(candidatePassword, callback) {
-    bcrypt.compare(candidatePassword, this.password, (error, isMatch) => {
-        if(error) {
-            return callback(error);
-        }
-        callback(null, isMatch);
-    });
-}
+userSchema.pre("findOneAndUpdate", async function () {
+  this._update.password = await bcrypt.hash(this._update.password, 10);
+});
+
+userSchema.methods.comparePassword = function (candidatePassword, callback) {
+  bcrypt.compare(candidatePassword, this.password, (error, isMatch) => {
+    if (error) {
+      return callback(error);
+    }
+    callback(null, isMatch);
+  });
+};
 
 const User = mongoose.model("User", userSchema);
 
-module.exports = {User, userSchema};
+module.exports = { User, userSchema };
