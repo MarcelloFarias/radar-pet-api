@@ -144,50 +144,9 @@ exports.update = async (request, response) => {
       return;
     }
 
-    response
-      .status(200)
-      .json({ updatedUser, message: "Informações atualizadas com sucesso !" });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-exports.updatePassword = async (request, response) => {
-  try {
-    const id = request.params.id;
-    const newPassword = request.body.newPassword;
-    const currentPassword = request.body.currentPassword;
-
-    const user = await User.findById(id);
-
-    if (!user) {
-      response.status(404).json({ message: "Usuário não encontrado !" });
-      return;
-    }
-
-    user.comparePassword(currentPassword, async (error, passwordsMatch) => {
-      if (error) {
-        console.log(error);
-      }
-
-      if (passwordsMatch) {
-        const updatedUser = await User.findOneAndUpdate(
-          { _id: id },
-          { password: newPassword }
-        );
-
-        if (!updatedUser) {
-          response.status(404).json({ message: "Falha ao alterar a senha !" });
-          return;
-        }
-
-        response
-          .status(200)
-          .json({ updatedUser, message: "Senha alterada com sucesso !" });
-      } else {
-        response.status(404).json({ message: "Senha atual incorreta !" });
-        return;
-      }
+    response.status(200).json({
+      updatedUser,
+      message: "Informações atualizadas com sucesso !",
     });
   } catch (error) {
     console.log(error);

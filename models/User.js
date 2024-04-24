@@ -37,10 +37,6 @@ userSchema.pre("save", function (next) {
   });
 });
 
-userSchema.pre("findOneAndUpdate", async function () {
-  this._update.password = await bcrypt.hash(this._update.password, 10);
-});
-
 userSchema.methods.comparePassword = function (candidatePassword, callback) {
   bcrypt.compare(candidatePassword, this.password, (error, isMatch) => {
     if (error) {
