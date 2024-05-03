@@ -195,7 +195,7 @@ exports.updatePassword = async (request, response) => {
         });
       });
     } else {
-      response.status(404).json({ message: "Senha incorreta !" });
+      response.status(404).json({ message: "Senha atual incorreta !" });
     }
   });
 };
