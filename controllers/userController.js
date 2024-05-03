@@ -1,6 +1,7 @@
 require("dotenv/config");
 const { User } = require("../models/User");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 exports.authenticate = async (request, response) => {
   try {
@@ -151,4 +152,50 @@ exports.update = async (request, response) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+exports.updatePassword = async (request, response) => {
+  const id = request.params.id;
+
+  const oldPassword = request.body.oldPassword;
+  const newPassword = request.body.newPassword;
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    response.status(404).json({ message: "Usuário não encontrado !" });
+    return;
+  }
+
+  user.comparePassword(oldPassword, async (error, passwordsMatch) => {
+    if (error) {
+      console.log(error);
+    }
+
+    if (passwordsMatch) {
+      const salts = 10;
+
+      bcrypt.genSalt(salts, (error, salt) => {
+        if (error) {
+          console.log(error);
+        }
+
+        bcrypt.hash(newPassword, salt, async (error, hash) => {
+          if (error) {
+            console.log(error);
+          }
+
+          const updatedUser = await User.findByIdAndUpdate(id, {
+            password: hash,
+          });
+
+          response
+            .status(200)
+            .json({ updatedUser, message: "Senha atualizada com sucesso !" });
+        });
+      });
+    } else {
+      response.status(404).json({ message: "Senha incorreta !" });
+    }
+  });
 };
