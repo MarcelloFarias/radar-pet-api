@@ -12,12 +12,12 @@ Radar pet é um projeto voltado a compertilhamento e gestão de animais desapare
 
 # 🔨 Funcionalidades do projeto
 ℹ️ O projeto conta com dois schemas: `User` e `Pet` 
-<br>
+
 Em `User`, além do `CRUD`, há:
 - `Autenticação do usuário`
 - `Autorização do usuário`
 - `Update de senha de acesso do usuário`
-<br>
+
 Em `Pet`, há o `CRUD` completo
 
 # 📜 Licença
